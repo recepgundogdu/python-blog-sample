@@ -6,16 +6,23 @@ from contextlib import contextmanager
 
 app = Flask(__name__)
 
+# Veritabanı yolunu belirle
+DATABASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'blogs.db')
+
 @contextmanager
 def get_db():
-    conn = sqlite3.connect('blogs.db')
+    # Veritabanı dizininin varlığını kontrol et
+    os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
+    conn = sqlite3.connect(DATABASE_PATH)
     try:
         yield conn
     finally:
         conn.close()
 
 def init_db():
-    conn = sqlite3.connect('blogs.db')
+    # Veritabanı dizininin varlığını kontrol et
+    os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
+    conn = sqlite3.connect(DATABASE_PATH)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS blogs
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -61,12 +68,11 @@ def home():
 
 @app.route('/blog/<int:id>')
 def blog_detail(id):
-    conn = sqlite3.connect('blogs.db')
-    c = conn.cursor()
-    c.execute('SELECT * FROM blogs WHERE id=?', (id,))
-    row = c.fetchone()
-    conn.close()
-    
+    with get_db() as conn:
+        c = conn.cursor()
+        c.execute('SELECT * FROM blogs WHERE id=?', (id,))
+        row = c.fetchone()
+        
     if row:
         blog = {'id': row[0], 'baslik': row[1], 'icerik': row[2], 'tarih': row[3]}
         return render_template('blog_detail.html', blog=blog)
@@ -86,12 +92,11 @@ def delete_blog_route(id):
 
 @app.route('/blog/duzenle/<int:id>', methods=['GET', 'POST'])
 def edit_blog(id):
-    conn = sqlite3.connect('blogs.db')
-    c = conn.cursor()
-    c.execute('SELECT * FROM blogs WHERE id=?', (id,))
-    row = c.fetchone()
-    conn.close()
-    
+    with get_db() as conn:
+        c = conn.cursor()
+        c.execute('SELECT * FROM blogs WHERE id=?', (id,))
+        row = c.fetchone()
+        
     if not row:
         return redirect(url_for('home'))
     
