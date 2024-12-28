@@ -48,7 +48,7 @@ def init_db():
 def load_blogs():
     with get_db() as conn:
         c = conn.cursor()
-        c.execute('SELECT * FROM blogs')
+        c.execute('SELECT * FROM blogs order by id')
         blogs = [{'id': row[0], 'baslik': row[1], 'icerik': row[2], 'tarih': row[3]} 
                 for row in c.fetchall()]
         return blogs
