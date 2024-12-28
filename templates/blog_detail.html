@@ -14,7 +14,7 @@
             <h1>{{ blog.baslik }}</h1>
             <p class="date">{{ blog.tarih }}</p>
             <div class="content">
-                {{ blog.icerik }}
+                {{ blog.icerik | safe }}
             </div>
         </article>
     </div>

@@ -17,11 +17,11 @@
             <div class="blog-card">
                 <h2>{{ blog.baslik }}</h2>
                 <p class="date">{{ blog.tarih }}</p>
-                <p class="preview">{{ blog.icerik[:200] }}...</p>
+                <p class="preview">{{ blog.icerik[:200] | safe }}...</p>
                 <div class="blog-actions">
                     <a href="{{ url_for('blog_detail', id=blog.id) }}" class="read-more">Devamını Oku</a>
                     <a href="{{ url_for('edit_blog', id=blog.id) }}" class="edit-btn">Düzenle</a>
-                    <a href="{{ url_for('delete_blog', id=blog.id) }}" class="delete-btn"
+                    <a href="{{ url_for('delete_blog_route', id=blog.id) }}" class="delete-btn"
                         onclick="return confirm('Bu blog yazısını silmek istediğinizden emin misiniz?')">Sil</a>
                 </div>
             </div>
