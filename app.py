@@ -15,10 +15,16 @@ def save_blogs(blogs):
     with open('blogs.json', 'w', encoding='utf-8') as file:
         json.dump(blogs, file, ensure_ascii=False, indent=4)
 
+def format_blog_content():
+    blogs = load_blogs()
+    for blog in blogs:
+        blog['icerik'] = blog['icerik'].replace('\n', '<br>')
+    save_blogs(blogs)
+
 @app.route('/')
 def home():
     blogs = load_blogs()
-    blogs.sort(key=lambda x: x['tarih'], reverse=True)
+    blogs.sort(key=lambda x: x['tarih'], reverse=False)
     return render_template('index.html', blogs=blogs)
 
 @app.route('/blog/<int:id>')
@@ -70,4 +76,5 @@ def edit_blog(id):
     return render_template('edit_blog.html', blog=blog)
 
 if __name__ == '__main__':
+    format_blog_content()
     app.run(debug=True) 
