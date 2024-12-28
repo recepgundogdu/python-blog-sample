@@ -63,7 +63,7 @@ def home():
     with get_db() as conn:
         c = conn.cursor()
         # SQL ile sıralama yap
-        c.execute('SELECT * FROM blogs ORDER BY datetime(tarih) DESC')
+        c.execute('SELECT * FROM blogs ORDER BY id ')
         blogs = [dict(row) for row in c.fetchall()]
     return render_template('index.html', blogs=blogs)
 
