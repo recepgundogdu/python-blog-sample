@@ -18,7 +18,7 @@ instance/
 .vscode/
 
 # Veritabanı
-*.db
+#*.db
 *.sqlite3
 
 # Diğer
