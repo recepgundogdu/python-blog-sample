@@ -6,44 +6,29 @@ from contextlib import contextmanager
 
 app = Flask(__name__)
 
+# Veritabanı yolunu belirle
+DATABASE_PATH = '/opt/render/project/src/blogs.db'
+
 @contextmanager
 def get_db():
-    conn = sqlite3.connect('blogs.db')
-    conn.row_factory = sqlite3.Row  # Dict-like rows
+    conn = sqlite3.connect(DATABASE_PATH)
+    conn.row_factory = sqlite3.Row
     try:
         yield conn
     finally:
         conn.close()
 
 def init_db():
-    # Örnek verileri ekle
-    with get_db() as conn:
-        c = conn.cursor()
-        # Tablo oluştur
-        c.execute('''CREATE TABLE IF NOT EXISTS blogs
-                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                     baslik TEXT NOT NULL,
-                     icerik TEXT NOT NULL,
-                     tarih TEXT NOT NULL)''')
-        
-        # Örnek veri ekle
-        c.execute('SELECT COUNT(*) FROM blogs')
-        count = c.fetchone()[0]
-        
-        if count == 0:
-            example_blogs = [
-                {
-                    'baslik': 'İlk Blog Yazısı',
-                    'icerik': 'Merhaba! Bu ilk blog yazısıdır.',
-                    'tarih': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                }
-            ]
-            
-            for blog in example_blogs:
-                c.execute('INSERT INTO blogs (baslik, icerik, tarih) VALUES (?, ?, ?)',
-                        (blog['baslik'], blog['icerik'], blog['tarih']))
-        
-        conn.commit()
+    # Veritabanı yoksa oluştur
+    if not os.path.exists(DATABASE_PATH):
+        with get_db() as conn:
+            c = conn.cursor()
+            c.execute('''CREATE TABLE IF NOT EXISTS blogs
+                        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                         baslik TEXT NOT NULL,
+                         icerik TEXT NOT NULL,
+                         tarih TEXT NOT NULL)''')
+            conn.commit()
 
 def load_blogs():
     with get_db() as conn:
@@ -125,7 +110,5 @@ def edit_blog(id):
     return render_template('edit_blog.html', blog=blog)
 
 if __name__ == '__main__':
-    # Uygulama başlarken veritabanını oluştur
-    #init_db()
-    # Debug modunu kapat
+    init_db()  # Veritabanı yoksa oluştur
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False) 
