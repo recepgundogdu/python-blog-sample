@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "baslik": "test",
+        "icerik": "asdasda sd as",
+        "tarih": "2024-12-28 19:24:41"
+    },
+    {
+        "id": 2,
+        "baslik": "adsada",
+        "icerik": "sdasdasd",
+        "tarih": "2024-12-28 19:29:05"
+    }
+]

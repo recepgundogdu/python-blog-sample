@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ blog.baslik }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <a href="{{ url_for('home') }}" class="back-btn">← Ana Sayfa</a>
+        <article class="blog-detail">
+            <h1>{{ blog.baslik }}</h1>
+            <p class="date">{{ blog.tarih }}</p>
+            <div class="content">
+                {{ blog.icerik }}
+            </div>
+        </article>
+    </div>
+</body>
+
+</html>

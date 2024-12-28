@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Yazısını Düzenle</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Blog Yazısını Düzenle</h1>
+        <form method="POST" class="blog-form">
+            <div class="form-group">
+                <label for="baslik">Başlık:</label>
+                <input type="text" id="baslik" name="baslik" required value="{{ blog.baslik }}">
+            </div>
+            <div class="form-group">
+                <label for="icerik">İçerik:</label>
+                <textarea id="icerik" name="icerik" required>{{ blog.icerik }}</textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit">Güncelle</button>
+                <a href="{{ url_for('blog_detail', id=blog.id) }}" class="cancel-btn">İptal</a>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>
