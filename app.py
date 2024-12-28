@@ -6,31 +6,47 @@ from contextlib import contextmanager
 
 app = Flask(__name__)
 
-# Veritabanı yolunu belirle
-DATABASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'blogs.db')
+# Veritabanı yolunu tmp klasörüne yönlendir (Render'da yazılabilir)
+DATABASE_PATH = '/tmp/blogs.db'
 
 @contextmanager
 def get_db():
-    # Veritabanı dizininin varlığını kontrol et
-    os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
     conn = sqlite3.connect(DATABASE_PATH)
+    conn.row_factory = sqlite3.Row  # Dict-like rows
     try:
         yield conn
     finally:
         conn.close()
 
 def init_db():
-    # Veritabanı dizininin varlığını kontrol et
-    os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
-    conn = sqlite3.connect(DATABASE_PATH)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS blogs
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  baslik TEXT NOT NULL,
-                  icerik TEXT NOT NULL,
-                  tarih TEXT NOT NULL)''')
-    conn.commit()
-    conn.close()
+    # Örnek verileri ekle
+    with get_db() as conn:
+        c = conn.cursor()
+        # Tablo oluştur
+        c.execute('''CREATE TABLE IF NOT EXISTS blogs
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                     baslik TEXT NOT NULL,
+                     icerik TEXT NOT NULL,
+                     tarih TEXT NOT NULL)''')
+        
+        # Örnek veri ekle
+        c.execute('SELECT COUNT(*) FROM blogs')
+        count = c.fetchone()[0]
+        
+        if count == 0:
+            example_blogs = [
+                {
+                    'baslik': 'İlk Blog Yazısı',
+                    'icerik': 'Merhaba! Bu ilk blog yazısıdır.',
+                    'tarih': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+            ]
+            
+            for blog in example_blogs:
+                c.execute('INSERT INTO blogs (baslik, icerik, tarih) VALUES (?, ?, ?)',
+                        (blog['baslik'], blog['icerik'], blog['tarih']))
+        
+        conn.commit()
 
 def load_blogs():
     with get_db() as conn:
@@ -62,8 +78,11 @@ def delete_blog_db(id):
 
 @app.route('/')
 def home():
-    blogs = load_blogs()
-    blogs.sort(key=lambda x: x['tarih'], reverse=False)
+    with get_db() as conn:
+        c = conn.cursor()
+        # SQL ile sıralama yap
+        c.execute('SELECT * FROM blogs ORDER BY datetime(tarih) DESC')
+        blogs = [dict(row) for row in c.fetchall()]
     return render_template('index.html', blogs=blogs)
 
 @app.route('/blog/<int:id>')
@@ -109,5 +128,7 @@ def edit_blog(id):
     return render_template('edit_blog.html', blog=blog)
 
 if __name__ == '__main__':
+    # Uygulama başlarken veritabanını oluştur
     init_db()
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000))) 
+    # Debug modunu kapat
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False) 
