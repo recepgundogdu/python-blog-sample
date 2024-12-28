@@ -6,12 +6,9 @@ from contextlib import contextmanager
 
 app = Flask(__name__)
 
-# Veritabanı yolunu tmp klasörüne yönlendir (Render'da yazılabilir)
-DATABASE_PATH = '/tmp/blogs.db'
-
 @contextmanager
 def get_db():
-    conn = sqlite3.connect(DATABASE_PATH)
+    conn = sqlite3.connect('blogs.db')
     conn.row_factory = sqlite3.Row  # Dict-like rows
     try:
         yield conn
